@@ -4,7 +4,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 public class DB {
@@ -14,7 +16,7 @@ public class DB {
 	public static Connection getConnection() {
 		if(conn == null) {
 			try {
-				Properties props = new Properties();
+				Properties props = loadProperties();
 				String url = props.getProperty("dburl");
 				conn = DriverManager.getConnection(url, props);
 			}
@@ -33,6 +35,24 @@ public class DB {
 			catch(SQLException e) {
 				throw new DbException(e.getMessage());
 			}
+		}
+	}
+	
+	public static void closeStatment(Statement st) {
+		try {
+			st.close();
+		}
+		catch(SQLException e) {
+			throw new DbException("Erro ao fechar o Statement!");
+		}
+	}
+	
+	public static void closeResultSet(ResultSet rs) {
+		try {
+			rs.close();
+		}
+		catch(SQLException e) {
+			throw new DbException("Erro ao fechar o ResultSet!");
 		}
 	}
 	
