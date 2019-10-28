@@ -31,6 +31,7 @@ public class SellerDaoJDBC implements SellerDao {
 		String sql = "insert into seller(Name, Email, birthDate, BaseSalary, DepartmentId) values(?, ?, ?, ?, ?)";
 		
 		try {
+			
 			ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			ps.setString(1, seller.getName());
@@ -69,6 +70,7 @@ public class SellerDaoJDBC implements SellerDao {
 		String sql = "update seller set Name = ?, Email = ?, birthDate = ?, BaseSalary = ?, DepartmentId = ? where Id = ?";
 		
 		try {
+			
 			ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			ps.setString(1, seller.getName());
@@ -79,7 +81,6 @@ public class SellerDaoJDBC implements SellerDao {
 			ps.setInt(6,  seller.getId());
 			
 			ps.executeUpdate();
-			
 		}
 		catch(SQLException e) {
 			throw new DbException("Erro: " + e.getMessage());
@@ -91,23 +92,34 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void deleteId(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement ps = null;
 		
+		String sql = "delete from seller where Id = ?";
+		
+		try {
+			
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, id);
+			ps.executeUpdate();
+		}
+		catch(SQLException e) {
+			throw new DbException("Erro ao deletar: " + e.getMessage());
+		}
 	}
 
 	@Override
 	public Seller findById(Integer id) {
 		
 		ResultSet rs = null;
-		PreparedStatement st = null;
+		PreparedStatement ps = null;
 		
 		String url = "select seller.*, department.Name as DepName from seller inner join department on seller.DepartmentId = department.Id where seller.Id = ?";
 		
 		try {
 			
-			st = conn.prepareStatement(url);
-			st.setInt(1, id);
-			rs = st.executeQuery();
+			ps = conn.prepareStatement(url);
+			ps.setInt(1, id);
+			rs = ps.executeQuery();
 			
 			if(rs.next()) {
 				Department dep = instantiateDepartment(rs);
@@ -120,7 +132,7 @@ public class SellerDaoJDBC implements SellerDao {
 			throw new DbException(e.getMessage());
 		}
 		finally {
-			DB.closeStatment(st);
+			DB.closeStatment(ps);
 			DB.closeResultSet(rs);
 		}
 	}
@@ -149,14 +161,14 @@ public class SellerDaoJDBC implements SellerDao {
 	public List<Seller> findAll() {
 
 		ResultSet rs = null;
-		PreparedStatement st = null;
+		PreparedStatement ps = null;
 		
-		String url = "select seller.*, department.Name as DepName from seller inner join department on seller.DepartmentId = department.Id order by Name";
+		String sql = "select seller.*, department.Name as DepName from seller inner join department on seller.DepartmentId = department.Id order by Name";
 		
 		try {
 			
-			st = conn.prepareStatement(url);
-			rs = st.executeQuery();
+			ps = conn.prepareStatement(sql);
+			rs = ps.executeQuery();
 			
 			List<Seller> list = new ArrayList<>();
 			Map<Integer, Department> map = new HashMap<>();
@@ -179,7 +191,7 @@ public class SellerDaoJDBC implements SellerDao {
 			throw new DbException(e.getMessage());
 		}
 		finally {
-			DB.closeStatment(st);
+			DB.closeStatment(ps);
 			DB.closeResultSet(rs);
 		}
 	}
@@ -188,15 +200,15 @@ public class SellerDaoJDBC implements SellerDao {
 	public List<Seller> findByDepartment(Department department) {
 
 		ResultSet rs = null;
-		PreparedStatement st = null;
+		PreparedStatement ps = null;
 		
 		String url = "select seller.*, department.Name as DepName from seller inner join department on seller.DepartmentId = department.Id where DepartmentId = ? order by Name";
 		
 		try {
 			
-			st = conn.prepareStatement(url);
-			st.setInt(1, department.getId());
-			rs = st.executeQuery();
+			ps = conn.prepareStatement(url);
+			ps.setInt(1, department.getId());
+			rs = ps.executeQuery();
 			
 			List<Seller> list = new ArrayList<>();
 			Map<Integer, Department> map = new HashMap<>();
@@ -219,7 +231,7 @@ public class SellerDaoJDBC implements SellerDao {
 			throw new DbException(e.getMessage());
 		}
 		finally {
-			DB.closeStatment(st);
+			DB.closeStatment(ps);
 			DB.closeResultSet(rs);
 		}
 	}
